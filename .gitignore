@@ -1,5 +1,6 @@
-node_modules
+:wnode_modules
 .env
 .vscode
 dist
 .DS_Store
+node_modules
