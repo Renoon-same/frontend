@@ -1,51 +1,160 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import * as z from "zod";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
+
+const formSchema = z.object({
+  firstName: z.string().min(2, { message: "First name must be at least 2 characters long" }),
+  lastName: z.string().min(2, { message: "Last name must be at least 2 characters long" }),
+  username: z.string().min(3, { message: "Username must be at least 3 characters long" }),
+  email: z.string().email({ message: "Email must be a valid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
+  phone: z.string().regex(/^\d{10}$/, { message: "Phone number must be a 10-digit number" }),
+});
+
+export type SignupFormData = z.infer<typeof formSchema>;
+
 const SignupForm = () => {
+  const [loading, setLoading] = useState(false);
+
+  const form = useForm<SignupFormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      username: "",
+      email: "",
+      password: "",
+      phone: "",
+    },
+  });
+
+  const onSubmit = async (values: SignupFormData) => {
+    try {
+      setLoading(true);
+      console.log(values);
+      toast.success("Signup successful!");
+      form.reset();
+    } catch (error) {
+      toast.error("Something went wrong");
+      console.error("Unexpected error:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div>
-      <Card className="w-[400px]">
-        <CardHeader>
-          <CardTitle>Sign Up</CardTitle>
-          <CardDescription> First Time with Rename Soon? Your Journey Start Here!</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form>
-            <div className="grid w-full gap-4">
-              <div className="flex flex-col space-y-3">
-                <Label htmlFor="email" className="text-left">
-                  Email
-                </Label>
-                <Input id="email" placeholder="Enter your email" />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <Card className="mx-auto max-w-4xl p-5">
+          <CardHeader className="text-center">
+            <CardTitle>Sign Up</CardTitle>
+            <CardDescription>Fill out the form below to create a new account.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2 text-left">
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name*</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <Label htmlFor="name" className="text-left">
-                  Username
-                </Label>
-                <Input id="username" placeholder="Enter your username" />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name*</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <Label htmlFor="password" className="text-left">
-                  Password
-                </Label>
-                <Input id="password" placeholder="Enter your password" />
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username*</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <Label htmlFor="confirm-pw" className="text-left">
-                  Confirm Your Password
-                </Label>
-                <Input id="confirm-pw" placeholder="Enter your password again" />
-              </div>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email*</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password*</FormLabel>
+                  <FormControl>
+                    <Input type="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Phone*</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+          <CardFooter>
+            <div className="flex w-full flex-col">
+              <Button
+                type="submit"
+                className="flex w-full bg-green-500 text-white hover:bg-green-600"
+                disabled={loading}
+              >
+                {loading ? "Signing Up..." : "Sign Up"}
+              </Button>
             </div>
-          </form>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full bg-green-600 hover:bg-green-700">Sign Up</Button>
-
-          <Button className="w-full" variant="outline">
-            Sign Up with Google Account
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+          </CardFooter>
+        </Card>
+      </form>
+    </Form>
   );
 };
 
